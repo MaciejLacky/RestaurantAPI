@@ -24,6 +24,10 @@ namespace RestaurantAPI.Controllers
         [HttpPost]
         public ActionResult CreateRestaurant([FromBody] CreateRestaurantDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var restaurant = _mapper.Map<Restaurant>(dto);
             _dbContext.Restaurants.Add(restaurant);
             _dbContext.SaveChanges();
@@ -56,7 +60,7 @@ namespace RestaurantAPI.Controllers
             {
                 return NotFound();
             }
-            var restaurantDto = _mapper.Map<List<RestaurantDto>>(restaurants);
+            var restaurantDto = _mapper.Map<RestaurantDto>(restaurants);
             return Ok(restaurantDto);
         }
     }
