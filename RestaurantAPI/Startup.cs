@@ -35,6 +35,7 @@ namespace RestaurantAPI
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IRestaurantService, RestaurantService>();
             services.AddScoped<ErrorHandlingMiddleware>();
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,9 +46,11 @@ namespace RestaurantAPI
             {
                 app.UseDeveloperExceptionPage();
             }
+
             app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseHttpsRedirection();
-
+            app.UseSwagger();
+            app.UseSwaggerUI(x => x.SwaggerEndpoint("/swagger/v1/swagger.json", "Restaurant Api"));
             app.UseRouting();
 
             //app.UseAuthorization();
