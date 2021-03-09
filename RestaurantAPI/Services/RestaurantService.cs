@@ -18,6 +18,25 @@ namespace RestaurantAPI.Services
             _dbContext = dbContext;
             _mapper = mapper;
         }
+
+        public bool Delete(int id)
+        {
+            var restaurants = _dbContext
+                .Restaurants               
+                .FirstOrDefault(x => x.Id == id);
+            if (restaurants is null)
+            {
+                return false;
+            }
+            else
+            {
+                _dbContext.Restaurants.Remove(restaurants);
+                _dbContext.SaveChanges();
+                return true;
+            }
+       
+
+        }
         public RestaurantDto GetById(int id)
         {
             var restaurants = _dbContext
