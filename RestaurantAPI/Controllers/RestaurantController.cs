@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAPI.Entities;
 using RestaurantAPI.Models;
+using RestaurantAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +14,12 @@ namespace RestaurantAPI.Controllers
     [Route("api/restaurant")]
     public class RestaurantController : ControllerBase
     {
-        private readonly RestaurantDbContext _dbContext;
-        private readonly IMapper _mapper;
+        private readonly IRestaurantService _restaurantService; 
+        
 
-        public RestaurantController(RestaurantDbContext dbContext, IMapper mapper)
+        public RestaurantController(IRestaurantService restaurantService)
         {
-            _dbContext = dbContext;
-            _mapper = mapper;
+            _restaurantService = restaurantService;
         }
         [HttpPost]
         public ActionResult CreateRestaurant([FromBody] CreateRestaurantDto dto)
@@ -28,40 +28,31 @@ namespace RestaurantAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var restaurant = _mapper.Map<Restaurant>(dto);
-            _dbContext.Restaurants.Add(restaurant);
-            _dbContext.SaveChanges();
-            return Created($"/api/restaurant/{restaurant.Id}", null);
+            var id = _restaurantService.Create(dto);
+            return Created($"/api/restaurant/{id}", null);
         }
 
 
         [HttpGet]
         public ActionResult<IEnumerable<RestaurantDto>> GetAll()
         {
-            var restaurants =_dbContext
-                .Restaurants
-                .Include(x =>x.Address)
-                .Include(x =>x.Dishes)
-                .ToList();
-
-            var restaurantsDtos = _mapper.Map<List<RestaurantDto>>(restaurants);
-        
-            
+            var restaurantsDtos = _restaurantService.GetAll();                   
 
             return Ok(restaurantsDtos);
         }
         [HttpGet("{id}")]
         public ActionResult<IEnumerable<RestaurantDto>> Get([FromRoute]int id)
         {
-            var restaurants = _dbContext
-                .Restaurants.FirstOrDefault(x => x.Id == id);
+            var restaurants = _restaurantService.GetById(id);
 
             if (restaurants is null)
             {
                 return NotFound();
             }
-            var restaurantDto = _mapper.Map<RestaurantDto>(restaurants);
-            return Ok(restaurantDto);
+           
+            return Ok(restaurants);
         }
+
+
     }
 }
