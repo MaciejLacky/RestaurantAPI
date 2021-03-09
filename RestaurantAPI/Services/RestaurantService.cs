@@ -19,6 +19,26 @@ namespace RestaurantAPI.Services
             _mapper = mapper;
         }
 
+        public bool Update(int id, UpdateRestaurantDto dto)
+        {
+            var restaurants = _dbContext
+               .Restaurants
+               .FirstOrDefault(x => x.Id == id);
+            if (restaurants is null)
+            {
+                return false;
+            }
+            else
+            {
+                restaurants.Name = dto.Name;
+                restaurants.Description = dto.Description;
+                restaurants.HasDelivery = dto.HasDelivery;
+                _dbContext.SaveChanges();
+                return true;
+            }
+
+        }
+
         public bool Delete(int id)
         {
             var restaurants = _dbContext
